@@ -1,0 +1,42 @@
+#!/bin/sh
+# Bloqueia commits com segredos, credenciais em URLs ou dados pessoais da conta.
+
+hook_dir=$(dirname "$0")
+denylist="$hook_dir/denylist.local"
+status=0
+
+staged=$(git diff --cached --name-only --diff-filter=ACMR)
+[ -z "$staged" ] && exit 0
+
+blocked=$(printf '%s\n' "$staged" | grep -E -i '(^|/)(local\.properties|keystore\.properties|\.env[^/]*)$|\.(jks|keystore|m3u8?)$|(^|/)real-data/' )
+if [ -n "$blocked" ]; then
+    echo "Bloqueado: ficheiros que não podem entrar no Git:"
+    printf '  %s\n' $blocked
+    status=1
+fi
+
+# Só as linhas novas, sem contar com a pasta do próprio hook.
+added=$(git diff --cached -U0 --no-color -- . ':(exclude).githooks' | grep -E '^\+' | grep -v -E '^\+\+\+')
+
+# Credenciais em URLs. Os testes usam os valores sintéticos "test" ou "example".
+creds=$(printf '%s\n' "$added" | grep -E -i '(username|password)=[A-Za-z0-9]' | grep -v -E -i '(username|password)=(test|example)')
+if [ -n "$creds" ]; then
+    echo "Bloqueado: possíveis credenciais em URLs (valores omitidos)."
+    status=1
+fi
+
+if [ -f "$denylist" ]; then
+    while IFS= read -r term || [ -n "$term" ]; do
+        term=$(printf '%s' "$term" | tr -d '\r')
+        [ -z "$term" ] && continue
+        if printf '%s\n' "$added" | grep -F -i -q -- "$term"; then
+            echo "Bloqueado: encontrado um texto do denylist.local (valor omitido)."
+            status=1
+        fi
+    done < "$denylist"
+fi
+
+if [ "$status" -ne 0 ]; then
+    echo "Commit cancelado."
+fi
+exit "$status"

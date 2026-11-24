@@ -1,0 +1,13 @@
+name: Feature request
+description: An idea to make the app better
+body:
+  - type: markdown
+    attributes:
+      value: "**Never paste your server address, username, password or M3U link here.** Issues are public."
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like?
+      description: What you're trying to do and how the app could help.
+    validations:
+      required: true

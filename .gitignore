@@ -1,0 +1,36 @@
+# Gradle e builds
+.gradle/
+build/
+captures/
+.kotlin/
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+
+# Android Studio
+.idea/
+*.iml
+.cxx/
+.externalNativeBuild/
+
+# Local e segredos
+local.properties
+keystore.properties
+*.jks
+*.keystore
+*.env
+.env*
+.githooks/denylist.local
+
+# Respostas reais do servidor e playlists
+real-data/
+*.m3u
+*.m3u8
+*.logcat
+
+# Sistema
+.DS_Store
+Thumbs.db
+

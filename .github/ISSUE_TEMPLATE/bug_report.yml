@@ -1,0 +1,41 @@
+name: Bug report
+description: Something doesn't work as expected
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Never paste your server address, username, password or M3U link here.** Issues are public.
+
+        The quickest way to report a playback problem is from the app: turn on *Keep diagnostics* in
+        Settings, reproduce the problem, then use *Send diagnostics*. It fills in the technical details
+        for you, without any account data.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected and what you saw instead. Include the time if you can.
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device
+      placeholder: Nvidia Shield TV Pro, Fire TV Stick 4K Max, ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      description: Shown in Settings, or the version you downloaded from Releases.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where
+      options:
+        - Live channels
+        - Movies
+        - Series
+        - Programme guide
+        - Accounts or sign in
+        - Other
