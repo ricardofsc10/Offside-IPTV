@@ -36,6 +36,7 @@ import com.google.zxing.EncodeHintType
 import com.google.zxing.WriterException
 import com.google.zxing.qrcode.QRCodeWriter
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
+import io.github.ricardofsc10.offsideplayer.diagnostics.DiagnosticReport
 import io.github.ricardofsc10.offsideplayer.ui.AppViewModel
 import io.github.ricardofsc10.offsideplayer.ui.DiagnosticExport
 import io.github.ricardofsc10.offsideplayer.ui.RequestInitialFocus
@@ -52,14 +53,16 @@ import io.github.ricardofsc10.offsideplayer.ui.theme.Section
 @Composable
 fun DiagnosticScreen(viewModel: AppViewModel, onBack: () -> Unit) {
     var export by remember { mutableStateOf<DiagnosticExport?>(null) }
+    // Email por defeito: a maioria das pessoas não tem conta GitHub.
+    var byEmail by remember { mutableStateOf(true) }
     var qr by remember { mutableStateOf<ImageBitmap?>(null) }
-    val back = remember { FocusRequester() }
+    val firstChoice = remember { FocusRequester() }
     BackHandler(onBack = onBack)
-    RequestInitialFocus(back)
-    LaunchedEffect(Unit) {
-        val loaded = viewModel.diagnosticExport()
-        export = loaded
-        qr = qrBitmap(loaded.url)
+    RequestInitialFocus(firstChoice)
+    LaunchedEffect(Unit) { export = viewModel.diagnosticExport() }
+    LaunchedEffect(export, byEmail) {
+        val loaded = export ?: return@LaunchedEffect
+        qr = qrBitmap(if (byEmail) loaded.mailUrl else loaded.issueUrl)
     }
 
     Column(modifier = Modifier.fillMaxSize().padding(ScreenPadding)) {
@@ -72,12 +75,20 @@ fun DiagnosticScreen(viewModel: AppViewModel, onBack: () -> Unit) {
                         Image(it, contentDescription = tr(R.string.diagnostics_qr), filterQuality = FilterQuality.None, modifier = Modifier.size(QR_SIZE))
                     } ?: Text(if (export == null) tr(R.string.preparing) else tr(R.string.report_too_big), color = Pal.Ink)
                 }
-                BarButton(onClick = onBack, modifier = Modifier.focusRequester(back)) { Text(tr(R.string.back)) }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    BarButton(
+                        onClick = { byEmail = true },
+                        selected = byEmail,
+                        modifier = Modifier.focusRequester(firstChoice),
+                    ) { Text(tr(R.string.diagnostics_by_email)) }
+                    BarButton(onClick = { byEmail = false }, selected = !byEmail) { Text(tr(R.string.diagnostics_by_github)) }
+                    BarButton(onClick = onBack) { Text(tr(R.string.back)) }
+                }
             }
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(tr(R.string.diagnostics_send), style = MaterialTheme.typography.headlineSmall)
                 Text(
-                    tr(R.string.diagnostics_instructions),
+                    if (byEmail) tr(R.string.diagnostics_instructions_email, DiagnosticReport.EMAIL) else tr(R.string.diagnostics_instructions),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Pal.Muted,
                 )
