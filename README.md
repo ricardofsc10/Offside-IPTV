@@ -9,7 +9,7 @@ details they gave you. Only use it with content you're allowed to watch.
 *Em português:* um leitor IPTV para Android TV e Fire TV, feito para ver desporto em direto com o
 mínimo de atraso. A app não traz canais nem listas: usa a tua conta Xtream ou o link M3U do teu
 fornecedor. Está em português e em inglês. Para instalar, abre o Downloader na TV e escreve
-`is.gd/offsideiptv`.
+o código **9183430** (ou `is.gd/offsideiptv`).
 
 ## Screenshots
 
@@ -38,7 +38,7 @@ tested on Android TV 11, which Fire OS 8 is based on. It hasn't been tested on a
 so reports are welcome.
 
 1. Install **Downloader** from your TV's app store.
-2. Open it and type **`is.gd/offsideiptv`**. It always downloads the latest version from [Releases](../../releases/latest).
+2. Open it and type the code **`9183430`**, or **`is.gd/offsideiptv`**. Both always download the latest version from [Releases](../../releases/latest).
 3. Allow Downloader to install apps when Android asks, then install.
 4. Open Offside and sign in with your provider's server, username and password, or paste the M3U link into the server field.
 
@@ -62,9 +62,13 @@ anyway**. The source code is public and every release is built from it by
 
 ## Reporting a problem
 
-Turn on *Keep diagnostics* in Settings, reproduce the problem, then use *Send diagnostics*. You can
-also [open an issue](../../issues/new/choose) by hand. **Never paste your server address,
-username, password or M3U link into an issue.**
+Turn on *Keep diagnostics* in Settings, reproduce the problem, then use *Send diagnostics*. The QR
+code opens either a prefilled **email** or a prefilled **GitHub issue** on your phone.
+
+- **No GitHub account?** Email [offsideiptv@gmail.com](mailto:offsideiptv@gmail.com) with problems or ideas.
+- **With a GitHub account**, [open an issue](../../issues/new/choose).
+
+**Never send your server address, username, password or M3U link**, by email or in an issue.
 
 ## Building
 

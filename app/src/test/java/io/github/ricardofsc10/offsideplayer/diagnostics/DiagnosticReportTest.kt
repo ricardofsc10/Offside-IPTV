@@ -38,6 +38,12 @@ class DiagnosticReportTest {
         // O tamanho que interessa é o do QR: até à versão 25 (117 módulos) lê-se bem na TV.
         val version = Encoder.encode(url, ErrorCorrectionLevel.L).version.versionNumber
         assertTrue("QR version $version", version <= 25)
+        // O email leva o mesmo texto e também tem de caber.
+        val mail = DiagnosticReport.mailUrl(DiagnosticReport.title(sessions, listOf(crash)), body)
+        assertTrue(mail.startsWith("mailto:${DiagnosticReport.EMAIL}?subject="))
+        assertFalse("+" in mail)
+        val mailVersion = Encoder.encode(mail, ErrorCorrectionLevel.L).version.versionNumber
+        assertTrue("mail QR version $mailVersion", mailVersion <= 25)
         // O mais importante entra sempre: o aparelho, o erro e a sessão mais recente.
         assertTrue("dev NVIDIA SHIELD" in body)
         assertTrue("java.lang.IllegalStateException: boom" in body)
@@ -46,7 +52,9 @@ class DiagnosticReportTest {
 
     @Test
     fun `problem sessions come before the good ones`() {
-        val body = DiagnosticReport.body(context, listOf(session(1, "watched"), session(2)), emptyList(), emptyList())
+        // Sem eventos, para as duas sessões caberem e se poder ver a ordem.
+        val sessions = listOf(session(1, "watched"), session(2)).map { it.copy(events = emptyList()) }
+        val body = DiagnosticReport.body(context, sessions, emptyList(), emptyList())
         assertTrue(body.indexOf("problem lat=") < body.indexOf("watched lat="))
     }
 

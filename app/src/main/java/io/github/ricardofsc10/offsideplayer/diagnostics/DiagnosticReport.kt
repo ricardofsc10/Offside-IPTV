@@ -22,6 +22,9 @@ data class ReportContext(
  */
 object DiagnosticReport {
     const val ISSUE_URL = "https://github.com/ricardofsc10/Offside-IPTV/issues/new"
+
+    /** Para quem não tem conta GitHub: o mesmo relatório, num email já escrito. */
+    const val EMAIL = "offsideiptv@gmail.com"
     /**
      * Com 2 800 caracteres, o QR tinha cerca de 170 módulos de lado e não se lia do sofá. Com este
      * limite fica com cerca de 110, e cada módulo sai quase com o dobro do tamanho na TV.
@@ -29,10 +32,14 @@ object DiagnosticReport {
     const val MAX_URL = 1_250
     private const val MAX_SESSIONS = 4
     private const val MAX_EVENTS_LINE = 220
-    private const val MAX_CRASH = 300
+    private const val MAX_CRASH = 220
 
     fun issueUrl(title: String, body: String): String =
         "$ISSUE_URL?title=${encode(title)}&body=${encode(body)}"
+
+    /** Num mailto, os espaços têm de ir como %20: o "+" chegava ao email como "+". */
+    fun mailUrl(title: String, body: String): String =
+        "mailto:$EMAIL?subject=${encodeForMail(title)}&body=${encodeForMail(body)}"
 
     fun title(sessions: List<SessionSummary>, crashes: List<String>): String {
         val problems = sessions.count { it.outcome == "problem" }
@@ -63,7 +70,9 @@ object DiagnosticReport {
         val lines = mutableListOf<String>()
         fun fits(extra: List<String>): Boolean {
             val text = intro + (lines + extra).joinToString("\n", postfix = "\n") + outro
-            return issueUrl(title, Redact.text(text, secrets)).length <= MAX_URL
+            val clean = Redact.text(text, secrets)
+            // O mesmo texto vai nos dois QR, por isso tem de caber no maior.
+            return maxOf(issueUrl(title, clean).length, mailUrl(title, clean).length) <= MAX_URL
         }
         fun add(block: List<String>): Boolean = fits(block).also { if (it) lines += block }
 
@@ -136,4 +145,6 @@ object DiagnosticReport {
     }
 
     private fun encode(text: String): String = URLEncoder.encode(text, "UTF-8")
+
+    private fun encodeForMail(text: String): String = encode(text).replace("+", "%20")
 }

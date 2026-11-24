@@ -1,6 +1,9 @@
 # Blank issues stay on: the app's "Send diagnostics" QR opens a prefilled blank issue.
 blank_issues_enabled: true
 contact_links:
+  - name: No GitHub account? Email us
+    url: mailto:offsideiptv@gmail.com
+    about: Problems and ideas by email. Never send your server, username, password or M3U link.
   - name: Security problem
     url: https://github.com/ricardofsc10/Offside-IPTV/security/advisories/new
     about: Report it privately, not in a public issue.

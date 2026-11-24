@@ -39,7 +39,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 
-data class DiagnosticExport(val text: String, val url: String)
+/** O texto do relatório e os dois destinos: uma issue no GitHub ou um email. */
+data class DiagnosticExport(val text: String, val issueUrl: String, val mailUrl: String)
 
 sealed interface AppState {
     data object Starting : AppState
@@ -329,7 +330,7 @@ class AppViewModel(private val application: Application) : AndroidViewModel(appl
         val secrets = secretsOf(accounts)
         val title = DiagnosticReport.title(sessions, crashes)
         val body = DiagnosticReport.body(context, sessions, Diagnostics.log.lines(), crashes, secrets, tr(R.string.report_intro))
-        DiagnosticExport(body, DiagnosticReport.issueUrl(title, body))
+        DiagnosticExport(body, DiagnosticReport.issueUrl(title, body), DiagnosticReport.mailUrl(title, body))
     }
 
     private fun secretsOf(list: AccountList): List<String> =

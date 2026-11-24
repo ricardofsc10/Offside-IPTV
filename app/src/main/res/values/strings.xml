@@ -191,6 +191,9 @@
     <string name="preparing">Preparing…</string>
     <string name="report_too_big">Report too large</string>
     <string name="diagnostics_instructions">Point your phone\'s camera at the QR code. It opens a prefilled GitHub issue: describe what happened and press Submit. You need a GitHub account. The text below is everything that gets sent.</string>
+    <string name="diagnostics_by_email">Email</string>
+    <string name="diagnostics_by_github">GitHub</string>
+    <string name="diagnostics_instructions_email">Point your phone\'s camera at the QR code. It opens an email to %1$s that\'s already written: describe what happened and send it. No GitHub account needed. The text below is everything that gets sent.</string>
     <string name="report_intro">**What happened?** (write it here, for example the channel or movie and the time)</string>
     <plurals name="channels_count">
         <item quantity="one">%d channel</item>

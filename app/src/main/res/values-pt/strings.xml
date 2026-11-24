@@ -186,6 +186,9 @@
     <string name="preparing">A preparar…</string>
     <string name="report_too_big">Relatório grande demais</string>
     <string name="diagnostics_instructions">Aponta a câmara do telemóvel ao QR. Abre uma issue no GitHub já preenchida: escreve o que aconteceu e carrega em Submit. Precisas de uma conta GitHub. O texto abaixo é tudo o que vai.</string>
+    <string name="diagnostics_by_email">Email</string>
+    <string name="diagnostics_by_github">GitHub</string>
+    <string name="diagnostics_instructions_email">Aponta a câmara do telemóvel ao QR. Abre um email para %1$s já escrito: escreve o que aconteceu e envia. Não precisas de conta GitHub. O texto abaixo é tudo o que vai.</string>
     <string name="report_intro">**O que aconteceu?** (escreve aqui, por exemplo o canal ou o filme e a hora)</string>
     <plurals name="channels_count">
         <item quantity="one">%d canal</item>
