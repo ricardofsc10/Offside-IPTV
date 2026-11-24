@@ -10,6 +10,15 @@ details they gave you. Only use it with content you're allowed to watch.
 mínimo de atraso. A app não traz canais nem listas: usa a tua conta Xtream ou o link M3U do teu
 fornecedor. Está em português e em inglês.
 
+## Screenshots
+
+Taken with the synthetic data from `tools/fake_xtream.py`: every channel, match and title is made up.
+
+| | |
+| --- | --- |
+| ![Live matches on the start screen](docs/screenshots/live-now.png) | ![Movies by category](docs/screenshots/movies.png) |
+| ![Signing in](docs/screenshots/sign-in.png) | ![Settings](docs/screenshots/settings.png) |
+
 ## Features
 
 - **Low-latency live TV.** Three latency modes, buffer recovery and automatic reconnects.
