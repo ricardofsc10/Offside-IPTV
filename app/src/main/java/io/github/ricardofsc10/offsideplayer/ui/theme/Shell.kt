@@ -4,6 +4,7 @@ import io.github.ricardofsc10.offsideplayer.ui.text.tr
 import io.github.ricardofsc10.offsideplayer.R
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +25,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
@@ -49,9 +52,18 @@ enum class Section(@StringRes private val labelRes: Int) {
 private val HeaderHeight = 44.dp
 
 /**
- * A barra do topo de todos os ecrãs: o bloco OFFSIDE, as secções com a atual a verde e o relógio.
- * Com [onOpen], as secções recebem foco e abrem-se, como no ecrã de início. Sem ele, só mostram
- * onde se está.
+ * Abre uma secção a partir do menu do topo. O ecrã principal dá-o a todos os ecrãs, para o menu
+ * receber foco em qualquer sítio e não só no início.
+ */
+val LocalSectionNavigator = staticCompositionLocalOf<((Section) -> Unit)?> { null }
+
+/**
+ * A barra do topo de todos os ecrãs: o bloco OFFSIDE, as secções com a atual marcada e o relógio.
+ * As secções recebem foco e abrem-se com [onOpen] ou com o [LocalSectionNavigator]. Sem nenhum dos
+ * dois, só mostram onde se está.
+ *
+ * Ao subir para o menu, o foco entra na última secção que teve foco. Na primeira vez, entra na
+ * [focusSection] ou na secção atual, e não na que estiver mais perto na vertical.
  */
 @Composable
 fun BroadcastHeader(
@@ -60,13 +72,37 @@ fun BroadcastHeader(
     onOpen: ((Section) -> Unit)? = null,
     focusSection: Section? = null,
     focusRequester: FocusRequester? = null,
+    /** Dá foco ao menu como um todo: entra na secção certa, como ao subir com ▲. */
+    groupRequester: FocusRequester? = null,
     trailing: (@Composable RowScope.() -> Unit)? = null,
 ) {
     val now = rememberNow()
+    val open = onOpen ?: LocalSectionNavigator.current
+    val requesters = remember { Section.entries.associateWith { FocusRequester() } }
+    val entry = focusSection ?: current ?: Section.CHANNELS
+    var focusedSection by remember { mutableStateOf<Section?>(null) }
+    // A última secção com foco. Ao contrário de focusedSection, não se apaga quando o foco sai.
+    var lastSection by remember { mutableStateOf<Section?>(null) }
+    fun requesterFor(section: Section): FocusRequester =
+        if (section == focusSection && focusRequester != null) focusRequester else requesters.getValue(section)
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = BarGap,
-        modifier = modifier.fillMaxWidth().height(HeaderHeight),
+        modifier = modifier
+            .fillMaxWidth()
+            .height(HeaderHeight)
+            .then(if (open != null && groupRequester != null) Modifier.focusRequester(groupRequester) else Modifier)
+            // Ao entrar no menu, o foco vai para a última secção com foco ou para a atual, e não
+            // para a que estiver mais perto. O grupo é o que faz o onEnter ser chamado.
+            .then(
+                if (open != null) {
+                    Modifier
+                        .focusProperties { onEnter = { requesterFor(lastSection ?: entry).requestFocus() } }
+                        .focusGroup()
+                } else {
+                    Modifier
+                },
+            ),
     ) {
         Box(
             contentAlignment = Alignment.Center,
@@ -76,13 +112,13 @@ fun BroadcastHeader(
         }
         Section.entries.forEach { section ->
             val active = section == current
-            if (onOpen != null) {
+            if (open != null) {
                 Surface(
-                    onClick = { onOpen(section) },
+                    onClick = { open(section) },
                     shape = ClickableSurfaceDefaults.shape(BarShape),
                     colors = ClickableSurfaceDefaults.colors(
-                        containerColor = Pal.Bar2,
-                        contentColor = Pal.Muted,
+                        containerColor = if (active) Pal.Line else Pal.Bar2,
+                        contentColor = if (active) Pal.Text else Pal.Muted,
                         focusedContainerColor = Pal.Green,
                         focusedContentColor = Pal.Ink,
                         pressedContainerColor = Pal.Green,
@@ -91,7 +127,16 @@ fun BroadcastHeader(
                     scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
                     modifier = Modifier
                         .fillMaxHeight()
-                        .then(if (section == focusSection && focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier),
+                        .focusRequester(requesterFor(section))
+                        .onFocusChanged { state ->
+                            if (state.isFocused) {
+                                focusedSection = section
+                                lastSection = section
+                            } else if (focusedSection == section) {
+                                focusedSection = null
+                            }
+                        }
+                        .then(if (active && focusedSection != section) Modifier.selectedMark() else Modifier),
                 ) {
                     TabLabel(section.label)
                 }
