@@ -149,7 +149,11 @@ fun VodBrowseScreen(
     }
 
     Column(modifier = Modifier.fillMaxSize().padding(ScreenPadding)) {
-    BroadcastHeader(current = if (browser.kind == VodKind.MOVIE) Section.MOVIES else Section.SERIES)
+    val headerFocus = remember { FocusRequester() }
+    BroadcastHeader(
+        current = if (browser.kind == VodKind.MOVIE) Section.MOVIES else Section.SERIES,
+        groupRequester = headerFocus,
+    )
     Row(modifier = Modifier.fillMaxSize().padding(top = 16.dp)) {
         Column(modifier = Modifier.width(210.dp).fillMaxHeight()) {
             // Ao voltar da grelha com ◀, o foco vai para a prateleira escolhida e não para a que
@@ -170,9 +174,9 @@ fun VodBrowseScreen(
                         headlineContent = { Text(shelfLabel(entry), maxLines = 1) },
                         modifier = Modifier
                             .then(if (entry == shelf) Modifier.focusRequester(shelfFocus) else Modifier)
-                            // Por cima da primeira prateleira não há nada. Sem isto, o ▲ ia para a
+                            // Por cima da primeira prateleira está o menu. Sem isto, o ▲ ia para a
                             // caixa de pesquisa, que fica um pouco mais acima, à direita.
-                            .then(if (entry == VodShelf.Search) Modifier.focusProperties { up = FocusRequester.Cancel } else Modifier)
+                            .then(if (entry == VodShelf.Search) Modifier.focusProperties { up = headerFocus } else Modifier)
                             .onFocusChanged { if (it.isFocused) focusedShelf = entry },
                     )
                 }

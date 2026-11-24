@@ -1,5 +1,7 @@
 package io.github.ricardofsc10.offsideplayer.ui.home
 
+import androidx.compose.runtime.withFrameNanos
+import androidx.compose.runtime.LaunchedEffect
 import io.github.ricardofsc10.offsideplayer.ui.text.trPlural
 import io.github.ricardofsc10.offsideplayer.ui.text.tr
 import io.github.ricardofsc10.offsideplayer.R
@@ -91,7 +93,36 @@ fun HomeScreen(
         ?: SEARCH_KEY
     val itemFocus = remember { FocusRequester() }
     val loaded = visible != null && favorites != null
-    RequestInitialFocus(itemFocus, ready = loaded, trigger = refocus)
+    // A linha de cada item na lista, contando com os títulos das secções.
+    val rowOfKey: Map<String, Int> = buildMap {
+        var row = 0
+        if (sport.isNotEmpty()) {
+            row++
+            sport.chunked(2).forEach { pair ->
+                pair.forEach { put(sportKey(it.first), row) }
+                row++
+            }
+        }
+        if (favoriteList.isNotEmpty()) {
+            row++
+            favoriteList.forEach { put(favoriteKey(it), row++) }
+        }
+        if (!visible.isNullOrEmpty()) {
+            row++
+            visible.forEach { put(categoryKey(it), row++) }
+        }
+    }
+    LaunchedEffect(loaded, refocus) {
+        if (!loaded) return@LaunchedEffect
+        withFrameNanos { }
+        // Um item fora do ecrã não existe e não recebe foco. Nesse caso, a lista desliza até ele.
+        val row = rowOfKey[focusTarget]
+        if (row != null && listState.layoutInfo.visibleItemsInfo.none { it.index == row }) {
+            listState.scrollToItem(row)
+            withFrameNanos { }
+        }
+        runCatching { itemFocus.requestFocus() }
+    }
 
     fun Modifier.focusTargetFor(key: String) = if (key == focusTarget) focusRequester(itemFocus) else this
 
@@ -110,7 +141,9 @@ fun HomeScreen(
         if (status != null) {
             Text(status, style = MaterialTheme.typography.bodyMedium, color = Pal.Muted, modifier = Modifier.padding(top = 8.dp))
         }
-    LazyColumn(
+    // Só aparece com os dados carregados. Vazia, mesmo por um instante, voltava ao topo e
+    // perdia-se o sítio onde se estava ao regressar de uma categoria.
+    if (loaded) LazyColumn(
         state = listState,
         verticalArrangement = Arrangement.spacedBy(4.dp),
         contentPadding = PaddingValues(bottom = 8.dp),

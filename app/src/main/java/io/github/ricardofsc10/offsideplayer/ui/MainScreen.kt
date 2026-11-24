@@ -7,6 +7,9 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import io.github.ricardofsc10.offsideplayer.ui.theme.LocalSectionNavigator
+import io.github.ricardofsc10.offsideplayer.ui.theme.Section
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -138,6 +141,19 @@ fun MainScreen(viewModel: AppViewModel, credentials: XtreamCredentials, openSett
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
+    // O menu do topo abre a secção em qualquer ecrã. Ao voltar ao início, o foco fica nela.
+    fun openSection(section: Section) {
+        startFocusMode = StartFocus.SECTION
+        startFocus = section
+        destination = when (section) {
+            Section.CHANNELS -> Destination.Channels
+            Section.MOVIES -> Destination.Browse(VodKind.MOVIE)
+            Section.SERIES -> Destination.Browse(VodKind.SERIES)
+            Section.SETTINGS -> Destination.Settings
+        }
+    }
+
+    CompositionLocalProvider(LocalSectionNavigator provides ::openSection) {
     when (val current = destination) {
         Destination.Start -> StartScreen(
             focused = startFocus,
@@ -180,16 +196,7 @@ fun MainScreen(viewModel: AppViewModel, credentials: XtreamCredentials, openSett
                 }
             },
             onLongPress = { startMenuFor = it },
-            onOpen = { entry ->
-                startFocusMode = StartFocus.SECTION
-                startFocus = entry
-                destination = when (entry) {
-                    StartEntry.CHANNELS -> Destination.Channels
-                    StartEntry.MOVIES -> Destination.Browse(VodKind.MOVIE)
-                    StartEntry.SERIES -> Destination.Browse(VodKind.SERIES)
-                    StartEntry.SETTINGS -> Destination.Settings
-                }
-            },
+            onOpen = ::openSection,
             onExit = onExit,
         )
         Destination.Channels -> {
@@ -337,6 +344,7 @@ fun MainScreen(viewModel: AppViewModel, credentials: XtreamCredentials, openSett
             BackHandler { destination = Destination.Settings }
             ManageCategoriesScreen(viewModel)
         }
+    }
     }
 
     startMenuFor?.let { item ->
