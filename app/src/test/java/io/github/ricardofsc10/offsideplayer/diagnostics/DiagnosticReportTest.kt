@@ -2,6 +2,8 @@ package io.github.ricardofsc10.offsideplayer.diagnostics
 
 import io.github.ricardofsc10.offsideplayer.player.SessionEvent
 import io.github.ricardofsc10.offsideplayer.player.SessionSummary
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
+import com.google.zxing.qrcode.encoder.Encoder
 import java.io.File
 import java.nio.file.Files
 import org.junit.Assert.assertEquals
@@ -33,6 +35,9 @@ class DiagnosticReportTest {
         val body = DiagnosticReport.body(context, sessions, log, listOf(crash))
         val url = DiagnosticReport.issueUrl(DiagnosticReport.title(sessions, listOf(crash)), body)
         assertTrue(url.length <= DiagnosticReport.MAX_URL)
+        // O tamanho que interessa é o do QR: até à versão 25 (117 módulos) lê-se bem na TV.
+        val version = Encoder.encode(url, ErrorCorrectionLevel.L).version.versionNumber
+        assertTrue("QR version $version", version <= 25)
         // O mais importante entra sempre: o aparelho, o erro e a sessão mais recente.
         assertTrue("dev NVIDIA SHIELD" in body)
         assertTrue("java.lang.IllegalStateException: boom" in body)
