@@ -59,12 +59,17 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          apk="offside-iptv-${GITHUB_REF_NAME}.apk"
+          # Always the same name, so releases/latest/download/offside-iptv.apk is the newest version
+          # and the short link in the README never changes.
+          apk="offside-iptv.apk"
           cp app/build/outputs/apk/release/app-release.apk "$apk"
           # The mapping turns the obfuscated crash traces in diagnostic reports back into real names.
           cp app/build/outputs/mapping/release/mapping.txt "mapping-${GITHUB_REF_NAME}.txt"
+          # Hand-written notes for this version when they exist, the list of changes otherwise.
+          notes="docs/releases/${GITHUB_REF_NAME}.md"
+          if [ -f "$notes" ]; then set -- --notes-file "$notes"; else set -- --generate-notes; fi
           gh release create "$GITHUB_REF_NAME" "$apk" "mapping-${GITHUB_REF_NAME}.txt" \
-            --title "$GITHUB_REF_NAME" --generate-notes
+            --title "Offside IPTV ${GITHUB_REF_NAME#v}" "$@"
 
       - name: Remove the signing key
         if: always()

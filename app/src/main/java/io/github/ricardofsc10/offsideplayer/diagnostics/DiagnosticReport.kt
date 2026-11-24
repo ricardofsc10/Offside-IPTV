@@ -16,16 +16,20 @@ data class ReportContext(
 /**
  * Monta o relatório que vai num QR para uma issue no GitHub. O formato é compacto mas legível, com
  * uma linha por tema, para se perceber logo o problema sem ferramentas. Tudo cabe em [MAX_URL]
- * caracteres de link, o que um QR mostrado na TV ainda lê bem. Quando não cabe tudo, ficam primeiro
+ * caracteres de link, para o QR se ler do sofá. Quando não cabe tudo, ficam primeiro
  * os erros que fecharam a app, depois as sessões com problemas, das mais recentes para as mais antigas,
  * e por fim as últimas linhas do registo.
  */
 object DiagnosticReport {
     const val ISSUE_URL = "https://github.com/ricardofsc10/Offside-IPTV/issues/new"
-    const val MAX_URL = 2_800
-    private const val MAX_SESSIONS = 8
-    private const val MAX_EVENTS_LINE = 400
-    private const val MAX_CRASH = 700
+    /**
+     * Com 2 800 caracteres, o QR tinha cerca de 170 módulos de lado e não se lia do sofá. Com este
+     * limite fica com cerca de 110, e cada módulo sai quase com o dobro do tamanho na TV.
+     */
+    const val MAX_URL = 1_250
+    private const val MAX_SESSIONS = 4
+    private const val MAX_EVENTS_LINE = 220
+    private const val MAX_CRASH = 300
 
     fun issueUrl(title: String, body: String): String =
         "$ISSUE_URL?title=${encode(title)}&body=${encode(body)}"
@@ -53,8 +57,8 @@ object DiagnosticReport {
     ): String {
         val title = title(sessions, crashes)
         // O que o utilizador escreve no telemóvel vem primeiro, e o bloco técnico a seguir.
-        val intro = "$question\n\n\n" +
-            "<!-- Gerado pela app. Não tem contas, canais, títulos nem endereços. -->\n```\n"
+        // Cada caráter conta para o tamanho do QR, por isso não há texto fixo além da pergunta.
+        val intro = "$question\n\n\n```\n"
         val outro = "```\n"
         val lines = mutableListOf<String>()
         fun fits(extra: List<String>): Boolean {

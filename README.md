@@ -8,7 +8,8 @@ details they gave you. Only use it with content you're allowed to watch.
 
 *Em português:* um leitor IPTV para Android TV e Fire TV, feito para ver desporto em direto com o
 mínimo de atraso. A app não traz canais nem listas: usa a tua conta Xtream ou o link M3U do teu
-fornecedor. Está em português e em inglês.
+fornecedor. Está em português e em inglês. Para instalar, abre o Downloader na TV e escreve
+`is.gd/offsideiptv`.
 
 ## Screenshots
 
@@ -32,11 +33,21 @@ Taken with the synthetic data from `tools/fake_xtream.py`: every channel, match 
 ## Install
 
 Requires Android 11 or later: Android TV devices such as the Nvidia Shield or Chromecast with
-Google TV, and Fire TV devices on Fire OS 8 or later.
+Google TV. Fire TV devices on Fire OS 8 should work: the app needs no Google services and was
+tested on Android TV 11, which Fire OS 8 is based on. It hasn't been tested on a real Fire TV yet,
+so reports are welcome.
 
-1. Download the APK from [Releases](../../releases/latest).
-2. Install it with a sideloading app such as Downloader, or with `adb install`.
-3. Open Offside and sign in with your provider's server, username and password, or paste the M3U link into the server field.
+1. Install **Downloader** from your TV's app store.
+2. Open it and type **`is.gd/offsideiptv`**. It always downloads the latest version from [Releases](../../releases/latest).
+3. Allow Downloader to install apps when Android asks, then install.
+4. Open Offside and sign in with your provider's server, username and password, or paste the M3U link into the server field.
+
+You can also download `offside-iptv.apk` from [Releases](../../releases/latest) and install it with `adb install`.
+
+**About the warning when installing:** Android may say the app is unknown or that Play Protect
+hasn't scanned it. That's expected for any app installed outside the store: choose **Install
+anyway**. The source code is public and every release is built from it by
+[GitHub Actions](../../actions/workflows/release.yml).
 
 ## Privacy
 
